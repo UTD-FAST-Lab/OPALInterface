@@ -17,31 +17,25 @@ public class CallGraphAnalysisExample {
 
     public static void main(String[] args) {
         if (args.length != 3) {
-            System.err.println("Usage: CallGraphAnalysisExample <path-to-jar> <output-directory> <algorithm>");
+            System.err.println("Usage: CallGraphAnalysisExample <path-to-jar> <output-file> <algorithm>");
             System.err.println("Supported algorithms: CHA, RTA, XTA, PointsTo");
             System.exit(1);
         }
 
         String pathToJar = args[0];
-        String outputDirPath = args[1];
+        String output = args[1];
         String algorithm = args[2];
 
         File projectJar = new File(pathToJar);
-        File outputDir = new File(outputDirPath);
 
         System.out.println(args[0]);
         System.out.println(args[1]);
         System.out.println(args[2]);
 
-        if (!outputDir.exists() || !outputDir.isDirectory()) {
-            System.err.println("The output path must be an existing directory.");
-            System.exit(1);
-        }
-
         Project<?> project = Project.apply(projectJar);
 
         try {
-            writeCallGraph(project, algorithm, new File(outputDir, "CallGraph.json"));
+            writeCallGraph(project, algorithm, new File(output));
         } catch (Exception e) {
             e.printStackTrace();
         }
