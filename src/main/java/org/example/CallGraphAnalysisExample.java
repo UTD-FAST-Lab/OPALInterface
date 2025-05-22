@@ -9,6 +9,13 @@ import org.opalj.tac.cg.CHACallGraphKey$;
 import org.opalj.tac.cg.AllocationSiteBasedPointsToCallGraphKey$;
 import org.opalj.tac.cg.XTACallGraphKey$;
 
+import org.opalj.tac.cg.CFA_1_0_CallGraphKey$;
+import org.opalj.tac.cg.CFA_1_1_CallGraphKey$;
+import org.opalj.tac.cg.CTACallGraphKey$;
+import org.opalj.tac.cg.FTACallGraphKey$;
+import org.opalj.tac.cg.MTACallGraphKey$;
+import org.opalj.tac.cg.TypeBasedPointsToCallGraphKey$;
+
 
 import java.io.File;
 
@@ -65,10 +72,46 @@ public class CallGraphAnalysisExample {
                     callGraph = project.get(XTACallGraphKey$.MODULE$);
                     CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
                     break;
-                case "PointsTo":
+                case "MTA":
+                    // Perform and write XTA call graph
+                    System.out.println("Generating MTA Call Graph...");
+                    callGraph = project.get(MTACallGraphKey$.MODULE$);
+                    CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
+                    break;
+                case "CTA":
+                    // Perform and write XTA call graph
+                    System.out.println("Generating CTA Call Graph...");
+                    callGraph = project.get(CTACallGraphKey$.MODULE$);
+                    CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
+                    break;
+                case "FTA":
+                    // Perform and write XTA call graph
+                    System.out.println("Generating FTA Call Graph...");
+                    callGraph = project.get(FTACallGraphKey$.MODULE$);
+                    CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
+                    break;
+                case "01cfa":
                     // Perform and write PointsTo call graph
-                    System.out.println("Generating PointsTo Call Graph...");
+                    System.out.println("Generating 0-1cfa Call Graph...");
                     callGraph = project.get(AllocationSiteBasedPointsToCallGraphKey$.MODULE$);
+                    CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
+                    break;
+                case "0cfa":
+                    // Perform and write PointsTo call graph
+                    System.out.println("Generating 0cfa Call Graph...");
+                    callGraph = project.get(TypeBasedPointsToCallGraphKey$.MODULE$);
+                    CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
+                    break;
+                case "10cfa":
+                    // Perform and write PointsTo call graph
+                    System.out.println("Generating 1-0cfa Call Graph...");
+                    callGraph = project.get(CFA_1_0_CallGraphKey$.MODULE$);
+                    CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
+                    break;
+                case "11cfa":
+                    // Perform and write PointsTo call graph
+                    System.out.println("Generating 1-1cfa Call Graph...");
+                    callGraph = project.get(CFA_1_1_CallGraphKey$.MODULE$);
                     CallGraphSerializer.writeCG(callGraph, outputFile, project.get(DeclaredMethodsKey$.MODULE$));
                     break;
                 default:
