@@ -9,6 +9,10 @@ import org.opalj.tac.cg.CHACallGraphKey$;
 import org.opalj.tac.cg.AllocationSiteBasedPointsToCallGraphKey$;
 import org.opalj.tac.cg.XTACallGraphKey$;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+
 import org.opalj.tac.cg.CFA_1_0_CallGraphKey$;
 import org.opalj.tac.cg.CFA_1_1_CallGraphKey$;
 import org.opalj.tac.cg.CTACallGraphKey$;
@@ -16,8 +20,11 @@ import org.opalj.tac.cg.FTACallGraphKey$;
 import org.opalj.tac.cg.MTACallGraphKey$;
 import org.opalj.tac.cg.TypeBasedPointsToCallGraphKey$;
 
-
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class CallGraphAnalysisExample {
@@ -33,13 +40,51 @@ public class CallGraphAnalysisExample {
         String output = args[1];
         String algorithm = args[2];
 
+
+        List<Map<String, String>> entryPoints = new ArrayList<>();
+        Map<String, String> entryPoint1 = new HashMap<>();
+        entryPoint1.put("declaringClass", "LEntrypoint;");
+        entryPoint1.put("name", "main");
+        entryPoints.add(entryPoint1);
+
         File projectJar = new File(pathToJar);
 
         System.out.println(args[0]);
         System.out.println(args[1]);
         System.out.println(args[2]);
 
-        Project<?> project = Project.apply(projectJar);
+
+        // --- Configuration Setup ---
+        // Base configuration
+        Config baseConfig = ConfigFactory.load().withValue(
+            "org.opalj.br.reader.ClassFileReader.Invokedynamic.rewrite",
+            ConfigValueFactory.fromAnyRef(true)
+        );
+
+        // Configure the initial entry points
+        Config config;
+        config = baseConfig
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
+                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
+            )
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
+                    ConfigValueFactory.fromAnyRef(entryPoints)
+            )
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
+                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
+            );
+        
+
+        // Apply additional configurations from the Scala script
+        config = config
+                .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeStringConstants", ConfigValueFactory.fromAnyRef(false))
+                .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
+
+
+        Project<?> project = Project.apply(projectJar, null, config);
 
         try {
             writeCallGraph(project, algorithm, new File(output));
