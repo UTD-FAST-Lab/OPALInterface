@@ -49,7 +49,7 @@ public class CallGraphAnalysisExample {
 
         List<Map<String, String>> entryPoints = new ArrayList<>();
         Map<String, String> entryPoint1 = new HashMap<>();
-        entryPoint1.put("declaringClass", "LEntrypoint;");
+        entryPoint1.put("declaringClass", "LEntrypoint");
         entryPoint1.put("name", "main");
         entryPoints.add(entryPoint1);
 
