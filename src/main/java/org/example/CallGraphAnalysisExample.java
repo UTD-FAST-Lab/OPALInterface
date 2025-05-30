@@ -20,11 +20,17 @@ import org.opalj.tac.cg.FTACallGraphKey$;
 import org.opalj.tac.cg.MTACallGraphKey$;
 import org.opalj.tac.cg.TypeBasedPointsToCallGraphKey$;
 
+import org.opalj.log.LogContext;
+import org.opalj.log.GlobalLogContext;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.security.auth.login.LoginContext;
+
 
 
 public class CallGraphAnalysisExample {
@@ -83,8 +89,10 @@ public class CallGraphAnalysisExample {
                 .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeStringConstants", ConfigValueFactory.fromAnyRef(false))
                 .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
 
+        
+        LogContext projectLogContext = GlobalLogContext.successor();
 
-        Project<?> project = Project.apply(projectJar, null, config);
+        Project<?> project = Project.apply(projectJar, projectLogContext, config);
 
         try {
             writeCallGraph(project, algorithm, new File(output));
