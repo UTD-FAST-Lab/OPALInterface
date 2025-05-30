@@ -11,6 +11,7 @@ import org.opalj.tac.cg.XTACallGraphKey$;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 
 import org.opalj.tac.cg.CFA_1_0_CallGraphKey$;
@@ -47,11 +48,12 @@ public class CallGraphAnalysisExample {
         String algorithm = args[2];
 
 
-        List<Map<String, String>> entryPoints = new ArrayList<>();
+        // List<Map<String, String>> entryPoints = new ArrayList<>();
+        List<ConfigValue> entryPoints = new ArrayList<>();
         Map<String, String> entryPoint1 = new HashMap<>();
         entryPoint1.put("declaringClass", "LEntrypoint");
         entryPoint1.put("name", "main");
-        entryPoints.add(entryPoint1);
+        entryPoints.add(ConfigValueFactory.fromMap(entryPoint1));
 
         File projectJar = new File(pathToJar);
 
@@ -67,28 +69,30 @@ public class CallGraphAnalysisExample {
             ConfigValueFactory.fromAnyRef(true)
         );
 
-        // // Configure the initial entry points
-        // Config config;
-        // config = baseConfig
-        //     .withValue(
-        //             "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
-        //             ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
-        //     )
-        //     .withValue(
-        //             "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
-        //             ConfigValueFactory.fromAnyRef(entryPoints)
-        //     )
-        //     .withValue(
-        //             "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
-        //             ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
-        //     );
+        // Configure the initial entry points
+        Config config;
+        config = baseConfig
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
+                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
+            )
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
+                    ConfigValueFactory.fromIterable(entryPoints)
+            )
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
+                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
+            );
         
 
-        // // Apply additional configurations from the Scala script
-        // config = config
-        //         .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeStringConstants", ConfigValueFactory.fromAnyRef(false))
-        //         .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
-        Config config = baseConfig;
+        // Apply additional configurations from the Scala script
+        config = config
+                .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeStringConstants", ConfigValueFactory.fromAnyRef(false))
+                .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
+
+        config = config
+                .withValue("org.opalj.fpcf.analyses.cg.reflection.ReflectionRelatedCallsAnalysis.highSoundness", ConfigValueFactory.fromAnyRef(false));
         
         LogContext projectLogContext = GlobalLogContext.successor();
 
