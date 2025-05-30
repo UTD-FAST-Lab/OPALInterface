@@ -11,6 +11,7 @@ import org.opalj.tac.cg.XTACallGraphKey$;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -48,12 +49,12 @@ public class CallGraphAnalysisExample {
         String algorithm = args[2];
 
 
-        // List<Map<String, String>> entryPoints = new ArrayList<>();
-        List<ConfigValue> entryPoints = new ArrayList<>();
-        Map<String, String> entryPoint1 = new HashMap<>();
-        entryPoint1.put("declaringClass", "LEntrypoint");
-        entryPoint1.put("name", "main");
-        entryPoints.add(ConfigValueFactory.fromMap(entryPoint1));
+        // // List<Map<String, String>> entryPoints = new ArrayList<>();
+        // List<ConfigValue> entryPoints = new ArrayList<>();
+        // Map<String, String> entryPoint1 = new HashMap<>();
+        // entryPoint1.put("declaringClass", "LEntrypoint");
+        // entryPoint1.put("name", "main");
+        // entryPoints.add(ConfigValueFactory.fromMap(entryPoint1));
 
         File projectJar = new File(pathToJar);
 
@@ -69,6 +70,20 @@ public class CallGraphAnalysisExample {
             ConfigValueFactory.fromAnyRef(true)
         );
 
+
+        List<? extends ConfigObject> existingEntryPoints =
+            baseConfig.getObjectList("org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints");
+
+
+        // Define the new entry point
+        Map<String, String> mainEntryPoint = new HashMap<>();
+        mainEntryPoint.put("declaringClass", "LEntrypoint");
+        mainEntryPoint.put("name", "main");
+
+        List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
+        updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
+
+
         // Configure the initial entry points
         Config config;
         config = baseConfig
@@ -78,7 +93,7 @@ public class CallGraphAnalysisExample {
             )
             .withValue(
                     "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
-                    ConfigValueFactory.fromIterable(entryPoints)
+                    ConfigValueFactory.fromIterable(updatedEntryPoints)
             )
             .withValue(
                     "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
