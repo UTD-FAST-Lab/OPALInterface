@@ -67,28 +67,28 @@ public class CallGraphAnalysisExample {
             ConfigValueFactory.fromAnyRef(true)
         );
 
-        // Configure the initial entry points
-        Config config;
-        config = baseConfig
-            .withValue(
-                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
-                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
-            )
-            .withValue(
-                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
-                    ConfigValueFactory.fromAnyRef(entryPoints)
-            )
-            .withValue(
-                    "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
-                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
-            );
+        // // Configure the initial entry points
+        // Config config;
+        // config = baseConfig
+        //     .withValue(
+        //             "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
+        //             ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
+        //     )
+        //     .withValue(
+        //             "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
+        //             ConfigValueFactory.fromAnyRef(entryPoints)
+        //     )
+        //     .withValue(
+        //             "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
+        //             ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
+        //     );
         
 
-        // Apply additional configurations from the Scala script
-        config = config
-                .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeStringConstants", ConfigValueFactory.fromAnyRef(false))
-                .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
-
+        // // Apply additional configurations from the Scala script
+        // config = config
+        //         .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeStringConstants", ConfigValueFactory.fromAnyRef(false))
+        //         .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
+        Config config = baseConfig;
         
         LogContext projectLogContext = GlobalLogContext.successor();
 
