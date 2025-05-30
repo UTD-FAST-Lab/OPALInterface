@@ -77,7 +77,7 @@ public class CallGraphAnalysisExample {
 
         // Define the new entry point
         Map<String, String> mainEntryPoint = new HashMap<>();
-        mainEntryPoint.put("declaringClass", "LEntrypoint;");
+        mainEntryPoint.put("declaringClass", "Entrypoint");
         mainEntryPoint.put("name", "main");
 
         List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
