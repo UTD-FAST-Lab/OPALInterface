@@ -109,7 +109,7 @@ public class CallGraphAnalysisExample {
                 .withValue("org.opalj.fpcf.analyses.AllocationSiteBasedPointsToAnalysis.mergeClassConstants", ConfigValueFactory.fromAnyRef(false));
 
         config = config
-                .withValue("org.opalj.fpcf.analyses.cg.reflection.ReflectionRelatedCallsAnalysis.highSoundness", ConfigValueFactory.fromAnyRef(true));
+                .withValue("org.opalj.fpcf.analyses.cg.reflection.ReflectionRelatedCallsAnalysis.highSoundness", ConfigValueFactory.fromAnyRef(false));
         
         LogContext projectLogContext = GlobalLogContext.successor();
 
