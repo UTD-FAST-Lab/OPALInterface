@@ -47,21 +47,23 @@ public class CallGraphAnalysisExample {
         String pathToJar = args[0];
         String output = args[1];
         String algorithm = args[2];
+        String JDK_path = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar";
 
-
-        // // List<Map<String, String>> entryPoints = new ArrayList<>();
-        // List<ConfigValue> entryPoints = new ArrayList<>();
-        // Map<String, String> entryPoint1 = new HashMap<>();
-        // entryPoint1.put("declaringClass", "LEntrypoint");
-        // entryPoint1.put("name", "main");
-        // entryPoints.add(ConfigValueFactory.fromMap(entryPoint1));
-
+        ArrayList<File> applicationJars = new ArrayList<>();
         File projectJar = new File(pathToJar);
+        applicationJars.add(projectJar);
+
+        ArrayList<File> libraryJars = new ArrayList<>();
+        File jdkJar = new File(JDK_path);
+        libraryJars.add(jdkJar);
+
+        File[] appFiles = applicationJars.toArray(new File[0]);
+        File[] libFiles = libraryJars.toArray(new File[0]);
 
         System.out.println(args[0]);
         System.out.println(args[1]);
         System.out.println(args[2]);
-
+        System.out.println("Using JDK path: " + JDK_path);
 
         // --- Configuration Setup ---
         // Base configuration
@@ -111,7 +113,8 @@ public class CallGraphAnalysisExample {
         
         LogContext projectLogContext = GlobalLogContext.successor();
 
-        Project<?> project = Project.apply(projectJar, projectLogContext, config);
+        // Project<?> project = Project.apply(projectJar, projectLogContext, config);
+        Project<?> project = Project.apply(appFiles, libFiles, projectLogContext, config);
 
         try {
             writeCallGraph(project, algorithm, new File(output));
