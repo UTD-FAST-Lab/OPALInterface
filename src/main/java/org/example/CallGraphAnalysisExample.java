@@ -66,6 +66,8 @@ public class CallGraphAnalysisExample {
         System.out.println(args[2]);
         System.out.println("Using JDK path: " + JDK_path);
 
+
+
         // --- Configuration Setup ---
         // Base configuration
         Config baseConfig = ConfigFactory.load().withValue(
@@ -116,6 +118,14 @@ public class CallGraphAnalysisExample {
 
         // Project<?> project = Project.apply(projectJar, projectLogContext, config);
         Project<?> project = Project.apply(appFiles, libFiles, projectLogContext, config);
+
+        System.out.println("Loaded class files: " + project.allClassFiles().size());
+        System.out.println("Application class files: " + project.applicationClassFiles().size());
+        System.out.println("Library class files: " + project.libraryClassFiles().size());
+
+        project.allClassFiles().foreach(cf -> {
+            System.out.println("Class: " + cf.thisType().toJava());
+        });
 
         try {
             writeCallGraph(project, algorithm, new File(output));
