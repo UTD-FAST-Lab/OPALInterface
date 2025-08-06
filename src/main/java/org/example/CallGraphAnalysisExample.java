@@ -123,10 +123,6 @@ public class CallGraphAnalysisExample {
         System.out.println("Application class files: " + project.applicationClassFiles().size());
         System.out.println("Library class files: " + project.libraryClassFiles().size());
 
-        project.allClassFiles().foreach(cf -> {
-            System.out.println("Class: " + cf.thisType().toJava());
-        });
-
         try {
             writeCallGraph(project, algorithm, new File(output));
         } catch (Exception e) {
