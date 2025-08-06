@@ -83,7 +83,7 @@ public class CallGraphAnalysisExample {
         mainEntryPoint.put("name", "main");
 
         List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
-        updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
+        // updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
 
 
         // Configure the initial entry points
