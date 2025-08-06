@@ -119,10 +119,6 @@ public class CallGraphAnalysisExample {
         // Project<?> project = Project.apply(projectJar, projectLogContext, config);
         Project<?> project = Project.apply(appFiles, libFiles, projectLogContext, config);
 
-        System.out.println("Loaded class files: " + project.allClassFiles().size());
-        System.out.println("Application class files: " + project.applicationClassFiles().size());
-        System.out.println("Library class files: " + project.libraryClassFiles().size());
-
         try {
             writeCallGraph(project, algorithm, new File(output));
         } catch (Exception e) {
