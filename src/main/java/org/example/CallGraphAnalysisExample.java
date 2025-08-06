@@ -93,10 +93,10 @@ public class CallGraphAnalysisExample {
                     "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
                     ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
             )
-            .withValue(
-                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
-                    ConfigValueFactory.fromIterable(updatedEntryPoints)
-            )
+            // .withValue(
+            //         "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
+            //         ConfigValueFactory.fromIterable(updatedEntryPoints)
+            // )
             .withValue(
                     "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
                     ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
