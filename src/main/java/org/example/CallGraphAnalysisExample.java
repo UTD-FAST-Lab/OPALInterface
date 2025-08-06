@@ -47,7 +47,8 @@ public class CallGraphAnalysisExample {
         String pathToJar = args[0];
         String output = args[1];
         String algorithm = args[2];
-        String JDK_path = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar";
+        // String JDK_path = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar";
+        String JDK_path = "/usr/local/openjdk-8/jre/lib/rt.jar";
 
         ArrayList<File> applicationJars = new ArrayList<>();
         File projectJar = new File(pathToJar);
@@ -83,7 +84,7 @@ public class CallGraphAnalysisExample {
         mainEntryPoint.put("name", "main");
 
         List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
-        // updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
+        updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
 
 
         // Configure the initial entry points
