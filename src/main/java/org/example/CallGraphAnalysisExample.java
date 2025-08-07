@@ -52,7 +52,12 @@ public class CallGraphAnalysisExample {
 
         ArrayList<File> applicationJars = new ArrayList<>();
         File projectJar = new File(pathToJar);
+        if (!projectJar.exists() || !projectJar.isFile()) {
+            System.err.println("Error: The specified JAR file does not exist or is not a valid file.");
+            System.exit(1);
+        }
         applicationJars.add(projectJar);
+
 
         ArrayList<File> libraryJars = new ArrayList<>();
         File jdkJar = new File(JDK_path);
@@ -75,7 +80,6 @@ public class CallGraphAnalysisExample {
             ConfigValueFactory.fromAnyRef(true)
         );
 
-
         // List<? extends ConfigObject> existingEntryPoints =
         //     baseConfig.getObjectList("org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints");
 
@@ -94,7 +98,8 @@ public class CallGraphAnalysisExample {
         config = baseConfig
             .withValue(
                     "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
-                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
+                    // ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
+                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationWithoutJREEntryPointsFinder")
             )
             // .withValue(
             //         "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
