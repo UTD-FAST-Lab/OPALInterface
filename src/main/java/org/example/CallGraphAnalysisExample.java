@@ -44,19 +44,56 @@ public class CallGraphAnalysisExample {
             System.exit(1);
         }
 
-        String pathToJar = args[0];
+        // String pathToJar = args[0];
+        // String output = args[1];
+        // String algorithm = args[2];
+        // String JDK_path = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar";
+        // // String JDK_path = "/usr/local/openjdk-8/jre/lib/rt.jar";
+
+        // ArrayList<File> applicationJars = new ArrayList<>();
+        // File projectJar = new File(pathToJar);
+        // if (!projectJar.exists() || !projectJar.isFile()) {
+        //     System.err.println("Error: The specified JAR file does not exist or is not a valid file.");
+        //     System.exit(1);
+        // }
+        // applicationJars.add(projectJar);
+
+        String pathToAppDirectory = args[0]; // Renamed for clarity
         String output = args[1];
         String algorithm = args[2];
         String JDK_path = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar";
         // String JDK_path = "/usr/local/openjdk-8/jre/lib/rt.jar";
 
         ArrayList<File> applicationJars = new ArrayList<>();
-        File projectJar = new File(pathToJar);
-        if (!projectJar.exists() || !projectJar.isFile()) {
-            System.err.println("Error: The specified JAR file does not exist or is not a valid file.");
+        File appDirectory = new File(pathToAppDirectory);
+
+        // --- START: MODIFIED SECTION ---
+
+        // 1. Validate that the path is an existing directory
+        if (!appDirectory.exists() || !appDirectory.isDirectory()) {
+            System.err.println("Error: The specified path does not exist or is not a valid directory.");
             System.exit(1);
         }
-        applicationJars.add(projectJar);
+
+        // 2. List all files in the directory and filter for .jar files
+        File[] filesInDir = appDirectory.listFiles();
+        if (filesInDir != null) {
+            for (File file : filesInDir) {
+                // Add file to the list if it's a file and its name ends with .jar
+                if (file.isFile() && file.getName().toLowerCase().endsWith(".jar")) {
+                    applicationJars.add(file);
+                    System.out.println("Adding application JAR: " + file.getAbsolutePath());
+                }
+            }
+        }
+        
+        // 3. (Optional but recommended) Check if any JARs were found
+        if (applicationJars.isEmpty()) {
+            System.err.println("Error: No .jar files found in the directory: " + pathToAppDirectory);
+            System.exit(1);
+        }
+
+        // --- END: MODIFIED SECTION ---
 
 
         ArrayList<File> libraryJars = new ArrayList<>();
