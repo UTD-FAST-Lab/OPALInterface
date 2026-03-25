@@ -38,11 +38,12 @@ import javax.security.auth.login.LoginContext;
 public class CallGraphAnalysisExample {
 
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.err.println("Usage: CallGraphAnalysisExample <path-to-jar> <output-file> <algorithm>");
-            System.err.println("Supported algorithms: CHA, RTA, XTA, PointsTo");
+        if (args.length != 4) {
+            System.err.println("Usage: CallGraphAnalysisExample <app-dir> <output-file> <algorithm> <tamiflex-log>");
             System.exit(1);
         }
+
+        String tamiflexLogPath = args[3];
 
         // String pathToJar = args[0];
         // String output = args[1];
@@ -117,17 +118,17 @@ public class CallGraphAnalysisExample {
             ConfigValueFactory.fromAnyRef(true)
         );
 
-        // List<? extends ConfigObject> existingEntryPoints =
-        //     baseConfig.getObjectList("org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints");
+        List<? extends ConfigObject> existingEntryPoints =
+            baseConfig.getObjectList("org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints");
 
 
-        // // Define the new entry point
-        // Map<String, String> mainEntryPoint = new HashMap<>();
-        // mainEntryPoint.put("declaringClass", "Entrypoint");
-        // mainEntryPoint.put("name", "main");
+        // Define the new entry point
+        Map<String, String> mainEntryPoint = new HashMap<>();
+        mainEntryPoint.put("declaringClass", "Harness");
+        mainEntryPoint.put("name", "main");
 
-        // List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
-        // updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
+        List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
+        updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
 
 
         // Configure the initial entry points
@@ -135,13 +136,13 @@ public class CallGraphAnalysisExample {
         config = baseConfig
             .withValue(
                     "org.opalj.br.analyses.cg.InitialEntryPointsKey.analysis",
-                    // ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
-                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationWithoutJREEntryPointsFinder")
+                    ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ConfigurationEntryPointsFinder")
+                    // ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationWithoutJREEntryPointsFinder")
             )
-            // .withValue(
-            //         "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
-            //         ConfigValueFactory.fromIterable(updatedEntryPoints)
-            // )
+            .withValue(
+                    "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints",
+                    ConfigValueFactory.fromIterable(updatedEntryPoints)
+            )
             .withValue(
                     "org.opalj.br.analyses.cg.InitialInstantiatedTypesKey.analysis",
                     ConfigValueFactory.fromAnyRef("org.opalj.br.analyses.cg.ApplicationInstantiatedTypesFinder")
@@ -155,6 +156,11 @@ public class CallGraphAnalysisExample {
 
         config = config
                 .withValue("org.opalj.fpcf.analyses.cg.reflection.ReflectionRelatedCallsAnalysis.highSoundness", ConfigValueFactory.fromAnyRef(false));
+        
+        config = config.withValue(
+            "org.opalj.tac.fpcf.analyses.pointsto.TamiFlex.logFile",
+            ConfigValueFactory.fromAnyRef(tamiflexLogPath)
+        );
         
         LogContext projectLogContext = GlobalLogContext.successor();
 
