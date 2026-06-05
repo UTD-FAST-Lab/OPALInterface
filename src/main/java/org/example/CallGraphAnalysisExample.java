@@ -117,6 +117,10 @@ public class CallGraphAnalysisExample {
         }
         libraryJars.add(jdkJar);
         libraryJars.add(new File("/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar"));
+        libraryJars.add(new File("/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jsse.jar"));
+        libraryJars.add(new File("/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jfr.jar"));
+        libraryJars.add(new File("/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/resources.jar"));
+        libraryJars.add(new File("/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/charsets.jar"));
 
         File[] appFiles = applicationJars.toArray(new File[0]);
         File[] libFiles = libraryJars.toArray(new File[0]);
