@@ -15,34 +15,33 @@
     </properties>
 
     <repositories>
-        <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+      <repository>
+	<id>central</id>
+	<url>https://repo1.maven.org/maven2/</url>
+	<releases><enabled>true</enabled></releases>
+	<snapshots><enabled>false</enabled></snapshots>
+      </repository>
+      <repository>
+	<id>google-maven</id>
+	<url>https://maven.google.com/</url>
+      </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>de.opal-project</groupId>
             <artifactId>bytecode-representation_2.13</artifactId>
-            <version>5.0.1-SNAPSHOT</version>
+            <version>6.0.0</version>
         </dependency>
         <dependency>
             <groupId>de.opal-project</groupId>
             <artifactId>three-address-code_2.13</artifactId>
-            <version>5.0.1-SNAPSHOT</version>
+            <version>6.0.0</version>
         </dependency>
         <dependency>
             <groupId>de.opal-project</groupId>
             <artifactId>abstract-interpretation-framework_2.13</artifactId>
-            <version>5.0.1-SNAPSHOT</version>
+            <version>6.0.0</version>
         </dependency>
     </dependencies>
 
@@ -93,6 +92,5 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
 
