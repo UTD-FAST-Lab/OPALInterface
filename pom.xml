@@ -31,17 +31,17 @@
         <dependency>
             <groupId>de.opal-project</groupId>
             <artifactId>bytecode-representation_2.13</artifactId>
-            <version>6.0.0</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>de.opal-project</groupId>
             <artifactId>three-address-code_2.13</artifactId>
-            <version>6.0.0</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>de.opal-project</groupId>
             <artifactId>abstract-interpretation-framework_2.13</artifactId>
-            <version>6.0.0</version>
+            <version>5.0.0</version>
         </dependency>
     </dependencies>
 
