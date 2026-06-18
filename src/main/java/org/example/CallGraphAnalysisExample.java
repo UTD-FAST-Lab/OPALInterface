@@ -44,8 +44,8 @@ public class CallGraphAnalysisExample {
                         // Forces OPAL to run synchronously, eliminating all thread race crashes
         // System.setProperty("org.opalj.threads.CPUBoundTasks", "1");
         // System.setProperty("org.opalj.threads.IOBoundTasks", "1");
-        if (args.length != 4) {
-            System.err.println("Usage: CallGraphAnalysisExample <app-dir> <output-file> <algorithm> <tamiflex-log>");
+        if (args.length != 5) {
+            System.err.println("Usage: CallGraphAnalysisExample <app-dir> <output-file> <algorithm> <tamiflex-log> <main-class>");
             System.exit(1);
         }
 
@@ -73,6 +73,9 @@ public class CallGraphAnalysisExample {
         String pathToAppDirectory = args[0]; // Renamed for clarity
         String output = args[1];
         String algorithm = args[2];
+        // Fully qualified name of the application's main class (e.g. "com.example.Main"
+        // or "com/example/Main"). Injected as the call graph entry point below.
+        String mainClass = args[4].replace('.', '/');
         String JDK_path = "/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar";
         // String JDK_path = "/usr/local/openjdk-8/jre/lib/rt.jar";
 
@@ -135,6 +138,22 @@ public class CallGraphAnalysisExample {
         // --- Configuration Setup ---
         // Base configuration
         Config baseConfig = ConfigFactory.load();
+
+        String entryPointsKey = "org.opalj.br.analyses.cg.InitialEntryPointsKey.entryPoints";
+        List<? extends ConfigObject> existingEntryPoints = baseConfig.getObjectList(entryPointsKey);
+
+        Map<String, String> mainEntryPoint = new HashMap<>();
+        mainEntryPoint.put("declaringClass", mainClass);
+        mainEntryPoint.put("name", "main");
+
+        List<ConfigValue> updatedEntryPoints = new ArrayList<>(existingEntryPoints);
+        updatedEntryPoints.add(ConfigValueFactory.fromMap(mainEntryPoint));
+
+        baseConfig = baseConfig.withValue(
+            entryPointsKey,
+            ConfigValueFactory.fromIterable(updatedEntryPoints)
+        );
+        System.out.println("Using main class as entry point: " + mainClass);
         // Config baseConfig = ConfigFactory.load().withValue(
         //     "org.opalj.br.reader.ClassFileReader.Invokedynamic.rewrite",
         //     ConfigValueFactory.fromAnyRef(true)
