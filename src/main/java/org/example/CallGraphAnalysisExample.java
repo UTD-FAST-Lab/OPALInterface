@@ -8,12 +8,12 @@ import org.opalj.tac.cg.CallGraphSerializer;
 
 // Context-sensitive call-graph serialization
 import org.opalj.fpcf.PropertyStore;
-import org.opalj.fpcf.PropertyStoreKey$;
-import org.opalj.br.fpcf.ContextProviderKey$;
-import org.opalj.br.fpcf.analyses.ContextProvider;
+import org.opalj.br.fpcf.PropertyStoreKey$;
+import org.opalj.tac.cg.TypeIteratorKey$;
+import org.opalj.tac.fpcf.analyses.cg.TypeIterator;
 import org.opalj.br.fpcf.properties.Context;
 import org.opalj.br.fpcf.properties.CallStringContext;
-import org.opalj.br.fpcf.properties.cg.Callees;
+import org.opalj.tac.fpcf.properties.cg.Callees;
 import scala.Tuple2;
 import org.opalj.tac.cg.RTACallGraphKey$;
 import org.opalj.tac.cg.CHACallGraphKey$;
@@ -374,7 +374,7 @@ public class CallGraphAnalysisExample {
      */
     private static void writeContextSensitiveCG(Project<?> project, CallGraph cg, File outFile) {
         PropertyStore ps = project.get(PropertyStoreKey$.MODULE$);
-        ContextProvider cp = project.get(ContextProviderKey$.MODULE$);
+        TypeIterator cp = project.get(TypeIteratorKey$.MODULE$);
 
         // Collect the distinct caller contexts (a method may be reachable in several contexts).
         java.util.LinkedHashSet<Context> reachable = new java.util.LinkedHashSet<>();
