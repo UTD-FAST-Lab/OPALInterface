@@ -2,8 +2,19 @@ package org.example;
 
 import org.opalj.br.analyses.Project;
 import org.opalj.br.analyses.DeclaredMethodsKey$;
+import org.opalj.br.DeclaredMethod;
 import org.opalj.tac.cg.CallGraph;
 import org.opalj.tac.cg.CallGraphSerializer;
+
+// Context-sensitive call-graph serialization
+import org.opalj.fpcf.PropertyStore;
+import org.opalj.fpcf.PropertyStoreKey$;
+import org.opalj.br.fpcf.ContextProviderKey$;
+import org.opalj.br.fpcf.analyses.ContextProvider;
+import org.opalj.br.fpcf.properties.Context;
+import org.opalj.br.fpcf.properties.CallStringContext;
+import org.opalj.br.fpcf.properties.cg.Callees;
+import scala.Tuple2;
 import org.opalj.tac.cg.RTACallGraphKey$;
 import org.opalj.tac.cg.CHACallGraphKey$;
 import org.opalj.tac.cg.AllocationSiteBasedPointsToCallGraphKey$;
@@ -239,7 +250,7 @@ public class CallGraphAnalysisExample {
     private static void writeCallGraph(Project<?> project, String algorithm, File outputFile) {
         try {
             long startTime = System.currentTimeMillis();
-            CallGraph callGraph;
+            CallGraph callGraph = null;
             switch (algorithm) {
                 case "CHA":
                     // Perform and write CHA call graph
@@ -307,10 +318,148 @@ public class CallGraphAnalysisExample {
                     break;
             }
             System.out.println("Call graph written to: " + outputFile.getAbsolutePath());
+
+            // Additionally write a context-sensitive view of the same call graph.
+            if (callGraph != null) {
+                File ctxFile = new File(outputFile.getParentFile(), outputFile.getName() + ".context.json");
+                writeContextSensitiveCG(project, callGraph, ctxFile);
+                System.out.println("Context-sensitive call graph written to: " + ctxFile.getAbsolutePath());
+            }
+
             long endTime = System.currentTimeMillis();
             System.out.println("Call graph generation and writing took " + (endTime - startTime) + " ms");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Serializes the call graph while preserving the analysis contexts on both ends of every
+     * edge. Unlike {@link CallGraphSerializer#writeCG}, which aggregates over all caller contexts
+     * (collapsing the graph to a context-insensitive method->method graph), this walks the
+     * underlying {@link Callees} property per caller {@link Context} and emits the callee
+     * {@link Context} for each target.
+     *
+     * For context-sensitive algorithms (10cfa/11cfa) each Context is a {@link CallStringContext}
+     * and its call string is included; for context-insensitive algorithms (CHA/RTA/...) the
+     * context is just the method, identified by its id.
+     *
+     * Output format (one JSON object):
+     * <pre>
+     * {"reachableMethods":[
+     *   {"context":{...}, "method":{...}, "callSites":[
+     *     {"pc":7, "targets":[ {"context":{...}, "method":{...}}, ... ]}, ...
+     *   ]}, ...
+     * ]}
+     * </pre>
+     */
+    private static void writeContextSensitiveCG(Project<?> project, CallGraph cg, File outFile) {
+        PropertyStore ps = project.get(PropertyStoreKey$.MODULE$);
+        ContextProvider cp = project.get(ContextProviderKey$.MODULE$);
+
+        // Collect the distinct caller contexts (a method may be reachable in several contexts).
+        java.util.LinkedHashSet<Context> reachable = new java.util.LinkedHashSet<>();
+        scala.collection.Iterator<Context> rms = cg.reachableMethods();
+        while (rms.hasNext()) {
+            Context c = rms.next();
+            if (c != null && c.hasContext()) {
+                reachable.add(c);
+            }
+        }
+
+        try (java.io.BufferedWriter writer =
+                 new java.io.BufferedWriter(new java.io.FileWriter(outFile))) {
+            writer.write("{\"reachableMethods\":[");
+            boolean firstRM = true;
+
+            for (Context callerCtx : reachable) {
+                DeclaredMethod m = callerCtx.method();
+                Callees callees = cg.calleesPropertyOf(m);
+
+                if (firstRM) firstRM = false; else writer.write(",");
+
+                writer.write("{\"context\":");
+                writeContext(callerCtx, writer);
+                writer.write(",\"method\":");
+                writeMethodObject(m, writer);
+                writer.write(",\"callSites\":[");
+
+                // Map<pc, Iterator<Context>> of callees for THIS caller context.
+                scala.collection.immutable.Map<Object, scala.collection.Iterator<Context>> sites =
+                    callees.callSites(callerCtx, ps, cp);
+
+                scala.collection.Iterator<Tuple2<Object, scala.collection.Iterator<Context>>> siteIt =
+                    sites.iterator();
+                boolean firstSite = true;
+                while (siteIt.hasNext()) {
+                    Tuple2<Object, scala.collection.Iterator<Context>> entry = siteIt.next();
+                    int pc = ((Integer) entry._1()).intValue();
+                    scala.collection.Iterator<Context> targets = entry._2();
+
+                    if (firstSite) firstSite = false; else writer.write(",");
+                    writer.write("{\"pc\":");
+                    writer.write(Integer.toString(pc));
+                    writer.write(",\"targets\":[");
+                    boolean firstTgt = true;
+                    while (targets.hasNext()) {
+                        Context calleeCtx = targets.next();
+                        if (firstTgt) firstTgt = false; else writer.write(",");
+                        writer.write("{\"context\":");
+                        writeContext(calleeCtx, writer);
+                        writer.write(",\"method\":");
+                        writeMethodObject(calleeCtx.method(), writer);
+                        writer.write("}");
+                    }
+                    writer.write("]}");
+                }
+
+                writer.write("]}");
+            }
+
+            writer.write("]}");
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void writeContext(Context ctx, java.io.Writer out) throws java.io.IOException {
+        out.write("{\"id\":");
+        out.write(Integer.toString(ctx.id()));
+        if (ctx instanceof CallStringContext) {
+            CallStringContext csc = (CallStringContext) ctx;
+            out.write(",\"callString\":[");
+            scala.collection.Iterator<Tuple2<DeclaredMethod, Object>> it = csc.callString().iterator();
+            boolean first = true;
+            while (it.hasNext()) {
+                Tuple2<DeclaredMethod, Object> elem = it.next();
+                if (first) first = false; else out.write(",");
+                out.write("{\"method\":");
+                writeMethodObject(elem._1(), out);
+                out.write(",\"pc\":");
+                out.write(Integer.toString(((Integer) elem._2()).intValue()));
+                out.write("}");
+            }
+            out.write("]");
+        }
+        out.write("}");
+    }
+
+    private static void writeMethodObject(DeclaredMethod method, java.io.Writer out) throws java.io.IOException {
+        out.write("{\"name\":\"");
+        out.write(method.name());
+        out.write("\",\"declaringClass\":\"");
+        out.write(method.declaringClassType().toJVMTypeName());
+        out.write("\",\"returnType\":\"");
+        out.write(method.descriptor().returnType().toJVMTypeName());
+        out.write("\",\"parameterTypes\":[");
+        int paramCount = method.descriptor().parametersCount();
+        for (int i = 0; i < paramCount; i++) {
+            if (i > 0) out.write(",");
+            out.write("\"");
+            out.write(method.descriptor().parameterType(i).toJVMTypeName());
+            out.write("\"");
+        }
+        out.write("]}");
     }
 }
